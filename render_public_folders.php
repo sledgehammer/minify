@@ -33,7 +33,7 @@ if ($relativeWebpath == '' || substr($relativeWebpath, -1) == '/') { // Gaat de 
 	foreach ($files as $filename) {
 		// Zoek naar index bestanden in de public/ mappen. Ala DirectoryIndex
 		foreach(array('index.html', 'index.htm', 'index.php') as $indexFile) {
-			$indexFiles[] = $filename.$indexFile; 
+			$indexFiles[] = $filename.$indexFile;
 		}
 	}
 	$files = $indexFiles;
@@ -54,15 +54,17 @@ foreach($files as $filename) {
 			error_log('Requesting a public folder without a trailing slash, redirecting to "'.$uriPath.'/"', E_NOTICE);
 			redirect($uriPath.'/'); //	Redirect naar dezelfde url, maar dan als mapnaam
 		}
-		$extension = file_extension($filename);
-		if ($extension == 'js' || $extension == 'css') {
+		$extension = strtolower(file_extension($filename));
+		if (in_array($extension, array('js', 'css', 'png', 'jpeg', 'jpg'))) {
 			$minifiedPathname = TMP_DIR.'minify'.substr($filename, strlen($modulePath));
 			if (file_exists($minifiedPathname) == false || filemtime($minifiedPathname) < filemtime($filename)) { // Is het cache bestand niet up2date?
 				$AutoLoader->init();
-				if ($extension == 'js') {
+				if ($extension === 'js') {
 					$minified = \JSMinPlus::minify(file_get_contents($filename), $filename);
-				} else {
+				} elseif ($extension === 'css') {
 					$minified = \CssMin::minify(file_get_contents($filename));
+				} else {
+					$minified = ImageOptimizer::minify(file_get_contents($filename), $filename);
 				}
 				mkdirs(dirname($minifiedPathname));
 				if ($minified === false) { // Minify failed?

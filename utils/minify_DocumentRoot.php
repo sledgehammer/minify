@@ -11,7 +11,7 @@ if ($argc > 1) {
 	$folders = array_slice($argv, 1);
 } else {
 	// Detecteer de publieke folder(s)
-	$folders = array(); 
+	$folders = array();
 	$detectFolders = array('www', 'public');
 	foreach ($detectFolders as $folder) {
 		if (file_exists(PATH.$folder.'/rewrite.php')) {
@@ -42,8 +42,13 @@ if (function_exists('minifyAppendFiles') == false) { // Wordt dit bestand opnieu
 			}
 			if ($entry->isDir()) {
 				minifyAppendFiles($files, $path, $targetPrefix, $pathSuffix.$entry->getFilename().'/');
-			} elseif (mimetype($entry->getFilename(), true) == 'text/javascript' || mimetype($entry->getFilename(), true) == 'text/css' ) {
-				$files[$targetPrefix.substr($entry->getPathname(), strlen($path))] = $entry->getPathname(); // Voeg toe of overschrijf dit js bestand aan de $files array
+
+
+			} else{
+				$extension = strtolower(file_extension($entry->getFilename()));
+				if (in_array($extension, array('js', 'css', 'png', 'jpeg', 'jpg'))) {
+					$files[$targetPrefix.substr($entry->getPathname(), strlen($path))] = $entry->getPathname(); // Add file (or overrule from application/public/)
+				}
 			}
 		}
 		return $files;
@@ -74,11 +79,24 @@ foreach ($modules as $module => $info) {
 $minifyCacheFolder = TMP_DIR.'minify/';
 //rmdirs($minifyCacheFolder); rmdir($minifyCacheFolder);
 
-$totalFullSize = 0;
-$totalMinifiedSize = 0;
+$totalFullSize = array(
+	'javascript' => 0,
+	'css' => 0,
+	'images' => 0,
+	'total' => 0
+);
+$totalMinifiedSize = $totalFullSize;
 
 foreach($files as $filename => $pathname) {
 	$minifiedPathname = $minifyCacheFolder.$filename;
+	$extension = strtolower(file_extension($filename));
+	if ($extension === 'css') {
+		$type = 'css';
+	} elseif ($extension === 'js') {
+		$type = 'javascript';
+	} else {
+		$type = 'images';
+	}
 	if (file_exists($minifiedPathname) && filemtime($minifiedPathname) > filemtime($pathname)) { // Is het cache bestand up2date?
 		echo '  "'.$filename.'" (cached) '; flush();
 		$minifiedSize = filesize($minifiedPathname);
@@ -87,10 +105,12 @@ foreach($files as $filename => $pathname) {
 		echo "  Processing: \"".$filename."\""; flush();
 		$script = file_get_contents($pathname);
 		$fullSize = strlen($script);
-		if (mimetype($filename) == 'text/css') {
+		if ($type === 'css') {
 			$minifiedScript = \CssMin::minify($script);
-		} else {
+		} elseif ($type === 'javascript') {
 			$minifiedScript = \JSMinPlus::minify($script);
+		} else {
+			$minifiedScript = ImageOptimizer::minify($script, $filename);
 		}
 		if ($minifiedScript === false) { // Is het minify proces mislukt?
 			$minifiedScript = $script; // Gebruik dan het orginele bestand.
@@ -104,12 +124,14 @@ foreach($files as $filename => $pathname) {
 	}
 	echo "    ".round(($minifiedSize - $fullSize) / 1024, 2).'KiB ('.round((1 - ($minifiedSize / $fullSize)) * 100)."%)\n";
 	//echo "    ".round((1 - ($minifiedSize / $fullSize)) * 100).'% ('.round($minifiedSize / 1024, 2).' / '.round($fullSize / 1024, 2)." KiB)\n";
-	$totalMinifiedSize += $minifiedSize;
-	$totalFullSize += $fullSize;
+	$totalMinifiedSize[$type] += $minifiedSize;
+	$totalFullSize[$type] += $fullSize;
+	$totalMinifiedSize['total'] += $minifiedSize;
+	$totalFullSize['total'] += $fullSize;
 }
 
 echo "\n  Writing: ";
-// Kopier de gecomprimeerde bestanden naar de DocumentRoot(s)  
+// Kopier de gecomprimeerde bestanden naar de DocumentRoot(s)
 foreach ($folders as $folder) {
 	echo '"'.$folder.'/" ';
 	foreach($files as $filename => $null) {
@@ -118,14 +140,18 @@ foreach ($folders as $folder) {
 		if (!copy($minifyCacheFolder.$filename, $targetFilename)) {
 			echo "\n  FAILED.\n";
 			exit;
-		}	
+		}
 	}
 }
 
 echo "\n  Summary\n";
-echo "    Normal:    ".kib_format($totalFullSize)."\n";
-echo "    Minified:  ".kib_format($totalMinifiedSize)."\n";
-echo "    Reduction: ".kib_format($totalFullSize - $totalMinifiedSize)." (".round((1 - ($totalMinifiedSize / $totalFullSize)) * 100, 1)."%)\n";
+foreach ($totalFullSize as $type => $total) {
+	$minified = $totalMinifiedSize[$type];
+	echo "    Type: ".$type,"\n";
+	echo "      Normal:    ".kib_format($total)."\n";
+	echo "      Minified:  ".kib_format($minified)."\n";
+	echo "      Reduction: ".kib_format($total - $minified)." (".round((1 - ($minified / $total)) * 100, 1)."%)\n";
+}
 echo "\n";
 return true;
 ?>
