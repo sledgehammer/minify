@@ -33,7 +33,7 @@ class ImageOptimizer extends Object {
 	}
 
 	private static function minifyPNG($filename) {
-		system(self::getCommand('optipng').' -o5 -quiet '.escapeshellarg($filename), $exit);
+		system(self::getCommand('optipng').' -quiet '.escapeshellarg($filename), $exit);
 		if ($exit === 0) {
 			return true;
 		}
