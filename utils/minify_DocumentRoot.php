@@ -7,6 +7,7 @@ namespace SledgeHammer;
 echo "\nMinify DocumentRoot\n";
 //ini_set('memory_limit', '256M');
 require_once(dirname(__FILE__).'/../../core/init_framework.php');
+
 if ($argc > 1) {
 	$folders = array_slice($argv, 1);
 } else {
@@ -26,7 +27,6 @@ if (count($folders) == 0) {
 	return false;
 }
 
-$ErrorHandler->html = true;
 
 if (function_exists('minifyAppendFiles') == false) { // Wordt dit bestand opnieuw geinclude? @todo Eigen function.php bestand?
 	/**
