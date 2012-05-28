@@ -1,13 +1,12 @@
 <?php
 /**
- * ImageMin
- *
- * Optimalisation of images.
- *
+ * ImageOptimizer
  * @package Minify
  */
-namespace SledgeHammer;
-
+namespace Sledgehammer;
+/**
+ * Optimalisation of images.
+ */
 class ImageOptimizer extends Object {
 
 	static function minify($contents, $filename) {

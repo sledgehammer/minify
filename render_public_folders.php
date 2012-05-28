@@ -1,12 +1,12 @@
 <?php
 /**
- * Works like "core/render_public_folder.php" but will minify *.css and *.js files.
- *
+ * Works like "core/render_public_folder.php" but will minify *.css, *.js and image files.
  * @package Minify
  */
-namespace SledgeHammer;
-if (!defined('SledgeHammer\MICROTIME_START')) {
-	define('SledgeHammer\MICROTIME_START', microtime(true));
+namespace Sledgehammer;
+
+if (!defined('Sledgehammer\MICROTIME_START')) {
+	define('Sledgehammer\MICROTIME_START', microtime(true));
 }
 
 $webpath = dirname((isset($_SERVER['ORIG_SCRIPT_NAME']) ? $_SERVER['ORIG_SCRIPT_NAME'] : $_SERVER['SCRIPT_NAME']));
@@ -78,9 +78,9 @@ foreach($files as $filename) {
 	}
 }
 
-define('SledgeHammer\WEBPATH', $webpath);
+define('Sledgehammer\WEBPATH', $webpath);
 $folderCount = preg_match_all('/[^\/]+\//', substr($uriPath, strlen(WEBPATH)), $match);
-define('SledgeHammer\WEBROOT', str_repeat('../', $folderCount));
+define('Sledgehammer\WEBROOT', str_repeat('../', $folderCount));
 //unset($urlPath, $publicFile, $fullpath, $folderCount, $math, $folders, $folder, $files, $filename);
 return true;
 ?>

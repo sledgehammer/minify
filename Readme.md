@@ -1,6 +1,6 @@
 Minify
 -------
-A SledgeHammer module that minifies the css and js files.
+A Sledgehammer module that minifies the css and js files.
 If will scan the "public" folders inside the module and application folders for *.js and *.css files and outputs minified version into into the /public folder.
 
 This means you'll only need the human-readable version in source-control.
