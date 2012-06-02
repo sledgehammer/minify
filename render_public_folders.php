@@ -48,7 +48,7 @@ foreach($files as $filename) {
 			include($filename); // Include het php bestand.
 			exit;
 		}
-		require_once($modulePath.'/core/bootstrap.php');
+		require_once($modulePath.'/core/functions.php');
 		if (is_dir($filename)) {
 			error_log('Requesting a public folder without a trailing slash, redirecting to "'.$uriPath.'/"', E_NOTICE);
 			redirect($uriPath.'/'); //	Redirect naar dezelfde url, maar dan als mapnaam
@@ -57,6 +57,7 @@ foreach($files as $filename) {
 		if (in_array($extension, array('js', 'css', 'png', 'jpeg', 'jpg'))) {
 			$minifiedPathname = TMP_DIR.'minify'.substr($filename, strlen($modulePath));
 			if (file_exists($minifiedPathname) == false || filemtime($minifiedPathname) < filemtime($filename)) { // Is het cache bestand niet up2date?
+				require_once($modulePath.'/core/bootstrap.php');
 				if ($extension === 'js') {
 					$minified = \JSMinPlus::minify(file_get_contents($filename), $filename);
 				} elseif ($extension === 'css') {
