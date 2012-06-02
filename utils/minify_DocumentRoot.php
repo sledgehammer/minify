@@ -6,7 +6,7 @@ namespace Sledgehammer;
 
 echo "\nMinify DocumentRoot\n";
 //ini_set('memory_limit', '256M');
-require_once(dirname(__FILE__).'/../../core/init_framework.php');
+require_once(dirname(__FILE__).'/../../core/bootstrap.php');
 
 if ($argc > 1) {
 	$folders = array_slice($argv, 1);
