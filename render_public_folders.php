@@ -17,7 +17,7 @@ $uriPath = rawurldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH)); // He
 $relativeWebpath = substr($uriPath, strlen($webpath)); // Bestandsnaam is het gedeelte van de uriPath zonder de WEBPATH
 $modulePath = dirname(dirname(__FILE__));
 $files = array(
-	dirname($modulePath).'/application/public/'.$relativeWebpath,
+	dirname($modulePath).'/app/public/'.$relativeWebpath,
 );
 
 $firstSlashPos = strpos($relativeWebpath, '/');

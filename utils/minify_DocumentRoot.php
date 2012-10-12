@@ -47,7 +47,7 @@ if (function_exists('minifyAppendFiles') == false) { // Wordt dit bestand opnieu
 			} else{
 				$extension = strtolower(file_extension($entry->getFilename()));
 				if (in_array($extension, array('js', 'css', 'png', 'jpeg', 'jpg'))) {
-					$files[$targetPrefix.substr($entry->getPathname(), strlen($path))] = $entry->getPathname(); // Add file (or overrule from application/public/)
+					$files[$targetPrefix.substr($entry->getPathname(), strlen($path))] = $entry->getPathname(); // Add file (or overrule from app/public/)
 				}
 			}
 		}
@@ -67,7 +67,7 @@ $files = array();
 foreach ($modules as $module => $info) {
 	$module_path = $info['path'];
 	if (is_dir($module_path.'public')) {
-		if (array_value($info, 'application')) {
+		if (array_value($info, 'app')) {
 			$prefix = '';
 		} else {
 			$prefix = $module.'/';
